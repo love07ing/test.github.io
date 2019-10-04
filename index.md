@@ -1,37 +1,92 @@
-## Welcome to GitHub Pages
 
-You can use the [editor on GitHub](https://github.com/love07ing/test.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+Mysql 查询优化建议
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+ 
 
-### Markdown
+ 
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+了解Mysql查询过程
 
-```markdown
-Syntax highlighted code block
+1、客户端与服务器建立TCP连接，客户端发送查询语句给到Mysql服务器
 
-# Header 1
-## Header 2
-### Header 3
+2、Mysql服务器先检查Query Cache，如果命中缓存则返回缓存结果，否则进入下一步解析
 
-- Bulleted
-- List
+3、解析器针对SQL语句做语法解析，生成解析树；预处理器进一步检查，生成新解析树
 
-1. Numbered
-2. List
+4、优化器根据新解析树生成执行计划
 
-**Bold** and _Italic_ and `Code` text
+5、执行器调用存储引擎API接口获取数据
 
-[Link](url) and ![Image](src)
-```
+6、Mysql服务器缓存查询结果，返回结果给到客户端。
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+7、关闭连接，释放连接线程。
 
-### Jekyll Themes
+查询过程图一：
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/love07ing/test.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+ 
 
-### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+ 
+
+ 
+
+查询过程图二：
+
+ 
+
+
+ 
+
+ 
+
+ 
+
+优化建议
+
+1、状态监控和检测
+
+show status
+
+ 
+
+show processlist
+
+ 
+
+ 
+
+ 
+
+2、开启慢查询日志
+
+在配置文件 my.cnf 中的 [mysqld] 一行下边添加两个参数：
+
+slow_query_log = 1
+
+slow_query_log_file=/var/lib/mysql/slow-query.log
+
+long_query_time = 2
+
+log_queries_not_using_indexes = 1
+
+ 
+
+ 
+
+ 
+
+ 
+
+3、分析SQL执行计划
+
+ 
+
+explain select * from category;
+
+ 
+
+附表
+
+DDL/DML/DCL区别概述
+
+https://share.weiyun.com/5VApXpb
